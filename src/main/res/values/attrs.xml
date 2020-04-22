@@ -6,6 +6,7 @@
         <attr format="boolean" name="animateProgress"/>
         <attr format="integer" name="progressAnimationDuration"/>
         <attr format="color" name="foregroundStrokeColor"/>
+        <attr format="integer" name="foregroundStrokePattern"/>
         <attr format="dimension" name="foregroundStrokeWidth"/>
         <attr format="boolean" name="drawBackgroundStroke"/>
         <attr format="color" name="backgroundStrokeColor"/>

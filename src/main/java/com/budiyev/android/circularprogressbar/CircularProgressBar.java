@@ -28,10 +28,14 @@ import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.graphics.Shader;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -41,6 +45,7 @@ import android.view.animation.LinearInterpolator;
 
 import androidx.annotation.AttrRes;
 import androidx.annotation.ColorInt;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
@@ -89,6 +94,7 @@ public final class CircularProgressBar extends View {
     private boolean mDrawBackgroundStroke = false;
     private boolean mIndeterminateGrowMode = false;
     private boolean mVisible = false;
+    private Drawable mForegroundDrawable;
 
     public CircularProgressBar(@NonNull final Context context) {
         super(context);
@@ -403,6 +409,14 @@ public final class CircularProgressBar extends View {
         invalidate();
     }
 
+    public void setForegroundStrokePattern(@DrawableRes final int drawableInt) {
+        if (drawableInt == 0) {
+            return;
+        }
+        mForegroundDrawable = getResources().getDrawable(drawableInt);
+        invalidate();
+    }
+
     /**
      * Foreground stroke width (in pixels)
      */
@@ -585,6 +599,21 @@ public final class CircularProgressBar extends View {
 
     @Override
     protected void onSizeChanged(final int width, final int height, final int oldWidth, final int oldHeight) {
+        Canvas canvas = new Canvas();
+        Bitmap bitmap = Bitmap.createBitmap(
+                getWidth(),
+                getHeight(),
+                Bitmap.Config.ARGB_8888
+        );
+        canvas.setBitmap(bitmap);
+        mForegroundDrawable.setBounds(0, 0, getWidth(), getHeight());
+        mForegroundDrawable.draw(canvas);
+
+
+        BitmapShader bitmapShader = new BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+
+        mForegroundStrokePaint.setShader(bitmapShader);
+
         invalidateDrawRect(width, height);
     }
 
@@ -652,6 +681,7 @@ public final class CircularProgressBar extends View {
                                 DEFAULT_INDETERMINATE_SWEEP_ANIMATION_DURATION));
                 setForegroundStrokeColor(attributes.getColor(R.styleable.CircularProgressBar_foregroundStrokeColor,
                         DEFAULT_FOREGROUND_STROKE_COLOR));
+                setForegroundStrokePattern(attributes.getResourceId(R.styleable.CircularProgressBar_foregroundStrokePattern, 0));
                 setBackgroundStrokeColor(attributes.getColor(R.styleable.CircularProgressBar_backgroundStrokeColor,
                         DEFAULT_BACKGROUND_STROKE_COLOR));
                 setForegroundStrokeWidth(attributes.getDimension(R.styleable.CircularProgressBar_foregroundStrokeWidth,
